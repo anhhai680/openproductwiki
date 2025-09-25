@@ -435,10 +435,5 @@ IMPORTANT FORMATTING RULES:
 
         except Exception as e:
             logger.error(f"Error in RAG call: {str(e)}")
-
-            # Create error response
-            error_response = RAGAnswer(
-                rationale="Error occurred while processing the query.",
-                answer=f"I apologize, but I encountered an error while processing your question. Please try again or rephrase your question."
-            )
-            return error_response, []
+            # Return empty list to indicate no documents were retrieved
+            return []

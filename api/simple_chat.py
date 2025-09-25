@@ -201,7 +201,12 @@ async def chat_completions_stream(request: ChatCompletionRequest):
                     # This will use the actual RAG implementation
                     retrieved_documents = request_rag(rag_query, language=request.language)
 
-                    if retrieved_documents and retrieved_documents[0].documents:
+                    # Check if we have valid retrieved documents with the documents attribute
+                    if (retrieved_documents and 
+                        len(retrieved_documents) > 0 and 
+                        hasattr(retrieved_documents[0], 'documents') and 
+                        retrieved_documents[0].documents):
+                        
                         # Format context for the prompt in a more structured way
                         documents = retrieved_documents[0].documents
                         logger.info(f"Retrieved {len(documents)} documents")
