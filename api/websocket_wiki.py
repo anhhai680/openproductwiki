@@ -43,7 +43,6 @@ class ChatCompletionRequest(BaseModel):
     provider: str = Field("google", description="Model provider (google, openai, openrouter, ollama, azure)")
     model: Optional[str] = Field(None, description="Model name for the specified provider")
 
-    language: Optional[str] = Field("en", description="Language for content generation (e.g., 'en', 'ja', 'zh', 'es', 'kr', 'vi')")
     excluded_dirs: Optional[str] = Field(None, description="Comma-separated list of directories to exclude from processing")
     excluded_files: Optional[str] = Field(None, description="Comma-separated list of file patterns to exclude from processing")
     included_dirs: Optional[str] = Field(None, description="Comma-separated list of directories to include exclusively")
@@ -194,7 +193,7 @@ async def handle_websocket_chat(websocket: WebSocket):
                 # Try to perform RAG retrieval
                 try:
                     # This will use the actual RAG implementation
-                    retrieved_documents = request_rag(rag_query, language=request.language)
+                    retrieved_documents = request_rag(rag_query)
 
                     # Check if we have valid retrieved documents with the documents attribute
                     if (retrieved_documents and 
@@ -243,11 +242,6 @@ async def handle_websocket_chat(websocket: WebSocket):
         # Determine repository type
         repo_type = request.type
 
-        # Get language information
-        language_code = request.language or configs["lang_config"]["default"]
-        supported_langs = configs["lang_config"]["supported_languages"]
-        language_name = supported_langs.get(language_code, "English")
-
         # Create system prompt
         if is_deep_research:
             # Check if this is the first iteration
@@ -261,7 +255,6 @@ async def handle_websocket_chat(websocket: WebSocket):
 You are an expert code analyst examining the {repo_type} repository: {repo_url} ({repo_name}).
 You are conducting a multi-turn Deep Research process to thoroughly investigate the specific topic in the user's query.
 Your goal is to provide detailed, focused information EXCLUSIVELY about this topic.
-IMPORTANT:You MUST respond in {language_name} language.
 </role>
 
 <guidelines>
@@ -291,7 +284,6 @@ IMPORTANT:You MUST respond in {language_name} language.
 You are an expert code analyst examining the {repo_type} repository: {repo_url} ({repo_name}).
 You are in the final iteration of a Deep Research process focused EXCLUSIVELY on the latest user query.
 Your goal is to synthesize all previous findings and provide a comprehensive conclusion that directly addresses this specific topic and ONLY this topic.
-IMPORTANT:You MUST respond in {language_name} language.
 </role>
 
 <guidelines>
@@ -323,7 +315,6 @@ IMPORTANT:You MUST respond in {language_name} language.
 You are an expert code analyst examining the {repo_type} repository: {repo_url} ({repo_name}).
 You are currently in iteration {research_iteration} of a Deep Research process focused EXCLUSIVELY on the latest user query.
 Your goal is to build upon previous research iterations and go deeper into this specific topic without deviating from it.
-IMPORTANT:You MUST respond in {language_name} language.
 </role>
 
 <guidelines>
@@ -354,7 +345,6 @@ IMPORTANT:You MUST respond in {language_name} language.
 You are an expert code analyst examining the {repo_type} repository: {repo_url} ({repo_name}).
 You provide direct, concise, and accurate information about code repositories.
 You NEVER start responses with markdown headers or code fences.
-IMPORTANT:You MUST respond in {language_name} language.
 </role>
 
 <guidelines>

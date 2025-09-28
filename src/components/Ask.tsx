@@ -3,7 +3,7 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Markdown from './Markdown';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 import RepoInfo from '@/types/repoinfo';
 import getRepoUrl from '@/utils/getRepoUrl';
 import ModelSelectionModal from './ModelSelectionModal';
@@ -66,7 +66,7 @@ const Ask: React.FC<AskProps> = ({
   const [isComprehensiveView, setIsComprehensiveView] = useState(true);
 
   // Get language context for translations
-  const { messages } = useLanguage();
+
 
   // Research navigation state
   const [researchStages, setResearchStages] = useState<ResearchStage[]>([]);
@@ -635,7 +635,7 @@ const Ask: React.FC<AskProps> = ({
       const width = buttonRef.current.offsetWidth;
       setButtonWidth(width);
     }
-  }, [messages.ask?.askButton, isLoading]);
+  }, [isLoading]);
 
   return (
     <div>
@@ -662,7 +662,7 @@ const Ask: React.FC<AskProps> = ({
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder={messages.ask?.placeholder || 'What would you like to know about this codebase?'}
+              placeholder="What would you like to know about this codebase?"
               className="block w-full rounded-md border border-[var(--border-color)] bg-[var(--input-bg)] text-[var(--foreground)] px-5 py-3.5 text-base shadow-sm focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/30 focus:outline-none transition-all"
               style={{ paddingRight: `${buttonWidth + 24}px` }}
               disabled={isLoading}
@@ -684,7 +684,7 @@ const Ask: React.FC<AskProps> = ({
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                   </svg>
-                  <span>{messages.ask?.askButton || 'Ask'}</span>
+                  <span>Ask</span>
                 </>
               )}
             </button>

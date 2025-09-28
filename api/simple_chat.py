@@ -248,10 +248,9 @@ async def chat_completions_stream(request: ChatCompletionRequest):
         # Determine repository type
         repo_type = request.type
 
-        # Get language information
-        language_code = request.language or configs["lang_config"]["default"]
-        supported_langs = configs["lang_config"]["supported_languages"]
-        language_name = supported_langs.get(language_code, "English")
+        # Set language to English
+        language_code = "en"
+        language_name = "English"
 
         # Create system prompt
         if is_deep_research:

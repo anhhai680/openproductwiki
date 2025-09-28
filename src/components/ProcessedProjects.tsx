@@ -19,14 +19,12 @@ interface ProcessedProjectsProps {
   showHeader?: boolean;
   maxItems?: number;
   className?: string;
-  messages?: Record<string, Record<string, string>>; // Translation messages with proper typing
 }
 
 export default function ProcessedProjects({ 
   showHeader = true, 
   maxItems, 
-  className = "",
-  messages 
+  className = ""
 }: ProcessedProjectsProps) {
   const [projects, setProjects] = useState<ProcessedProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,9 +45,6 @@ export default function ProcessedProjects({
   };
 
   const t = (key: string) => {
-    if (messages?.projects?.[key]) {
-      return messages.projects[key];
-    }
     return defaultMessages[key as keyof typeof defaultMessages] || key;
   };
 
