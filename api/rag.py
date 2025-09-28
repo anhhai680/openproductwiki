@@ -423,6 +423,10 @@ IMPORTANT FORMATTING RULES:
             Tuple of (RAGAnswer, retrieved_documents)
         """
         try:
+            # Check if retriever is initialized
+            if not hasattr(self, 'retriever') or self.retriever is None:
+                raise AttributeError("Retriever not initialized. Call prepare_retriever() first.")
+            
             retrieved_documents = self.retriever(query)
 
             # Fill in the documents
@@ -434,6 +438,14 @@ IMPORTANT FORMATTING RULES:
             return retrieved_documents
 
         except Exception as e:
-            logger.error(f"Error in RAG call: {str(e)}")
+            import traceback
+            error_details = {
+                'error_type': type(e).__name__,
+                'error_message': str(e),
+                'has_retriever': hasattr(self, 'retriever'),
+                'retriever_type': type(getattr(self, 'retriever', None)).__name__ if hasattr(self, 'retriever') else 'None'
+            }
+            logger.error(f"Error in RAG call: {error_details}")
+            logger.error(f"Full traceback: {traceback.format_exc()}")
             # Return empty list to indicate no documents were retrieved
             return []
