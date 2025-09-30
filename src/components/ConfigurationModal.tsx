@@ -135,23 +135,6 @@ export default function ConfigurationModal({
               </div>
             </div>
 
-            {/* Language selection */}
-            <div className="mb-4">
-              <label htmlFor="language-select" className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                {t.form?.wikiLanguage || 'Wiki Language'}
-              </label>
-              <select
-                id="language-select"
-                value={selectedLanguage}
-                onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="input-japanese block w-full px-3 py-2 text-sm rounded-md bg-transparent text-[var(--foreground)] focus:outline-none focus:border-[var(--accent-primary)]"
-              >
-                {
-                  Object.entries(supportedLanguages).map(([key, value])=> <option key={key} value={key}>{value}</option>)
-                }
-              </select>
-            </div>
-
             {/* Wiki Type Selector - more compact version */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
