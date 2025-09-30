@@ -1,0 +1,18 @@
+{
+  "embedder": {
+    "client_class": "OpenAIClient",
+    "model_kwargs": {
+      "model": "text-embedding-3-small",
+      "dimensions": 768,
+      "encoding_format": "float"
+    }
+  },
+  "retriever": {
+    "top_k": 20
+  },
+  "text_splitter": {
+    "split_by": "word",
+    "chunk_size": 350,
+    "chunk_overlap": 100
+  }
+}

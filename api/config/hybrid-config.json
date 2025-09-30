@@ -1,0 +1,21 @@
+{
+  "embedding": {
+    "provider": "ollama",
+    "client_class": "OllamaClient",
+    "model_kwargs": {
+      "model": "nomic-embed-text"
+    }
+  },
+  "generation": {
+    "provider": "openai",
+    "default_model": "gpt-4o"
+  },
+  "retriever": {
+    "top_k": 20
+  },
+  "text_splitter": {
+    "split_by": "word",
+    "chunk_size": 350,
+    "chunk_overlap": 100
+  }
+}

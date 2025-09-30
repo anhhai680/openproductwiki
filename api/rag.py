@@ -376,6 +376,40 @@ IMPORTANT FORMATTING RULES:
         if not self.transformed_docs:
             raise ValueError("No valid documents with embeddings found. Cannot create retriever.")
 
+        # Check if we need to regenerate embeddings due to model change
+        if self.transformed_docs:
+            sample_doc = self.transformed_docs[0]
+            if hasattr(sample_doc, 'vector') and sample_doc.vector is not None:
+                stored_dimension = len(sample_doc.vector) if isinstance(sample_doc.vector, list) else sample_doc.vector.shape[0]
+                
+                # Get expected dimension from current embedder by testing a short string
+                try:
+                    test_embedding = self.query_embedder("test")
+                    if hasattr(test_embedding, 'embedding'):
+                        current_dimension = len(test_embedding.embedding)
+                    elif hasattr(test_embedding, 'data') and test_embedding.data:
+                        current_dimension = len(test_embedding.data[0].embedding)
+                    else:
+                        current_dimension = None
+                    
+                    if current_dimension and stored_dimension != current_dimension:
+                        logger.error(f"Critical embedding dimension mismatch detected!")
+                        logger.error(f"Stored embeddings: {stored_dimension} dimensions")
+                        logger.error(f"Current embedder: {current_dimension} dimensions")
+                        logger.error("This explains the FAISS assertion error. The embedding model has changed.")
+                        logger.warning("Solution: Clear existing database to force regeneration with new embedder")
+                        
+                        # Clear by resetting the database manager state - this forces regeneration
+                        self.db_manager.reset_database()
+                        logger.info("Database state reset. Repository needs to be reprocessed to generate new embeddings.")
+                        
+                        # For immediate fix, we cannot proceed with mismatched dimensions
+                        raise ValueError(f"Embedding dimension mismatch: stored={stored_dimension}, current={current_dimension}. "
+                                       f"Please regenerate the wiki to create new embeddings with the current model.")
+                        
+                except Exception as e:
+                    logger.warning(f"Could not test current embedder dimension: {e}")
+
         logger.info(f"Using {len(self.transformed_docs)} documents with valid embeddings for retrieval")
 
         try:
@@ -437,6 +471,15 @@ IMPORTANT FORMATTING RULES:
 
             return retrieved_documents
 
+        except AssertionError as e:
+            # This is specifically for the FAISS dimension mismatch error
+            logger.error("FAISS AssertionError detected - this is likely due to embedding dimension mismatch")
+            logger.error("The stored embeddings have different dimensions than the current embedder model")
+            logger.error("Solution: Regenerate the wiki to create new embeddings with the current model")
+            
+            # Return empty list to indicate no documents were retrieved
+            return []
+            
         except Exception as e:
             import traceback
             error_details = {

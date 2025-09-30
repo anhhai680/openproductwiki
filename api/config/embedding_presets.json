@@ -1,0 +1,93 @@
+{
+  "embedding_presets": {
+    "current_safe": {
+      "name": "Ollama nomic-embed-text (Current)",
+      "description": "Local, private, free embeddings - 768 dimensions",
+      "config": {
+        "embedder": {
+          "client_class": "OllamaClient",
+          "model_kwargs": {
+            "model": "nomic-embed-text"
+          }
+        }
+      },
+      "dimensions": 768,
+      "cost_per_million": 0,
+      "privacy": "100% Local",
+      "benefits": ["Free forever", "Complete privacy", "No API limits"],
+      "compatible_with": ["openai_768d", "huggingface_768d"]
+    },
+    "openai_768d": {
+      "name": "OpenAI text-embedding-3-small (768D)",
+      "description": "High-quality API embeddings - dimension-matched",
+      "config": {
+        "embedder": {
+          "client_class": "OpenAIClient",
+          "model_kwargs": {
+            "model": "text-embedding-3-small",
+            "dimensions": 768,
+            "encoding_format": "float"
+          }
+        }
+      },
+      "dimensions": 768,
+      "cost_per_million": 20,
+      "privacy": "External API",
+      "benefits": ["High reliability", "Enterprise support", "Global CDN"],
+      "compatible_with": ["current_safe", "huggingface_768d"],
+      "migration_notes": "Seamless switch - no embeddings clearing required"
+    },
+    "huggingface_768d": {
+      "name": "Hugging Face all-mpnet-base-v2",
+      "description": "Open-source local embeddings - 768 dimensions",
+      "config": {
+        "embedder": {
+          "client_class": "HuggingFaceClient",
+          "model_kwargs": {
+            "model": "sentence-transformers/all-mpnet-base-v2"
+          }
+        }
+      },
+      "dimensions": 768,
+      "cost_per_million": 0,
+      "privacy": "100% Local",
+      "benefits": ["Open source", "High quality", "Local control"],
+      "compatible_with": ["current_safe", "openai_768d"],
+      "migration_notes": "Requires sentence-transformers integration"
+    }
+  },
+  "incompatible_models": {
+    "openai_default": {
+      "name": "OpenAI text-embedding-3-small (Default 1536D)",
+      "dimensions": 1536,
+      "issue": "Dimension mismatch with current 768D setup",
+      "solution": "Use dimensions=768 parameter for compatibility"
+    },
+    "openai_ada": {
+      "name": "OpenAI text-embedding-ada-002",
+      "dimensions": 1536,
+      "issue": "Fixed 1536D dimensions, not configurable",
+      "solution": "Switch to text-embedding-3-small with dimensions=768"
+    },
+    "ollama_minilm": {
+      "name": "Ollama all-minilm",
+      "dimensions": 384,
+      "issue": "Smaller dimensions may lose semantic information",
+      "solution": "Clear embeddings and regenerate wikis if switching"
+    }
+  },
+  "migration_rules": {
+    "same_dimension": {
+      "required_actions": ["Update configuration"],
+      "clear_embeddings": false,
+      "regenerate_wikis": false,
+      "user_message": "✅ Safe switch - no data migration needed"
+    },
+    "different_dimension": {
+      "required_actions": ["Update configuration", "Clear embeddings", "Regenerate wikis"],
+      "clear_embeddings": true,
+      "regenerate_wikis": true,
+      "user_message": "⚠️ Dimension change requires regenerating all wikis"
+    }
+  }
+}
