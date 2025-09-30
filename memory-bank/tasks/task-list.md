@@ -1,7 +1,7 @@
 # Tasks Index
 
 ## In Progress
-- Currently no active tasks
+- [TASK002] Fix RAG System FAISS Retriever Errors - Investigating dimension mismatch issues
 
 ## Pending
 - Currently no pending tasks
@@ -14,6 +14,6 @@
 
 ---
 
-**Last Updated**: 2025-01-28
-**Total Tasks**: 1
-**Active Tasks**: 0
+**Last Updated**: 2025-09-30
+**Total Tasks**: 2
+**Active Tasks**: 1

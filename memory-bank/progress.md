@@ -57,17 +57,31 @@
 - **Embedding Generation**: Successful vector representation of repository content
 - **Documentation Generation**: High-quality wiki content with proper formatting
 
-## Known Issues (Areas for Improvement)
+## Known Issues (Current Problems)
+
+### Critical Issues
+- **FAISS Retriever Errors**: `AssertionError` in FAISS search operations
+  - Error: `assert d == self.d` failing in `faiss_retriever.py`
+  - Impact: RAG system unable to retrieve documents for Q&A
+  - Status: Requires immediate investigation and fix
 
 ### Performance Considerations
 - **Large Repository Handling**: Very large repositories (>100MB) may timeout
-- **Memory Usage**: Peak memory usage during embedding generation
+- **Memory Usage**: Peak memory usage during embedding generation may cause dimension mismatches
 - **Concurrent Limits**: No explicit rate limiting for multiple simultaneous requests
+- **RAG Reliability**: Document retrieval failures affecting user experience
+
+### Recent Changes Impact
+- **Language Simplification**: Reduced from multi-language to English-only
+  - Removed: Korean, Portuguese (Brazil), Russian, Vietnamese, Chinese variants
+  - Current: English-only configuration in `src/i18n.ts`
+  - Status: Branch `remove-another-languages` ready for merge
 
 ### User Experience Gaps
 - **Progress Granularity**: Limited detailed progress information during generation
-- **Error Recovery**: Manual retry required for failed generations
+- **Error Recovery**: Manual retry required for failed generations, especially RAG failures
 - **History Management**: No built-in wiki version history or change tracking
+- **RAG Fallback**: No graceful degradation when document retrieval fails
 
 ### Feature Completeness
 - **Batch Processing**: No support for processing multiple repositories at once
@@ -76,21 +90,36 @@
 
 ## What's Left to Build
 
+### Immediate Fixes Required
+1. **RAG System Repair**
+   - Fix FAISS retriever assertion errors
+   - Investigate embedding dimension mismatches
+   - Implement better error handling for retriever failures
+   - Add fallback mechanisms for failed document retrieval
+
+2. **Language Configuration**
+   - Complete language simplification branch merge
+   - Update documentation to reflect English-only support
+   - Remove unused translation infrastructure
+
 ### Near-term Enhancements
 1. **Performance Optimization**
    - Repository size limits and warnings
    - Memory usage optimization for large files
    - Parallel processing improvements
+   - RAG system stability improvements
 
 2. **User Experience Improvements**
    - More detailed progress indicators
-   - Automatic retry mechanisms
+   - Automatic retry mechanisms for RAG failures
    - Wiki regeneration options
+   - Better error messages for system failures
 
 3. **Enterprise Features**
    - Batch repository processing
    - Team collaboration features
    - Usage analytics and monitoring
+   - Enhanced error reporting and monitoring
 
 ### Long-term Roadmap
 1. **Advanced AI Features**
@@ -115,5 +144,5 @@
 - **Reliability**: High success rate with minimal manual intervention required
 - **User Satisfaction**: Positive feedback on documentation quality and usability
 
-## Health Status: 🟢 Healthy
-The system is production-ready with a solid feature set. Current focus should be on optimization, user experience refinements, and scaling preparations.
+## Health Status: � Needs Attention
+The system is production-ready with a solid feature set, but currently experiencing critical RAG system issues that affect core functionality. Priority should be on fixing the FAISS retriever errors before focusing on optimizations and new features.

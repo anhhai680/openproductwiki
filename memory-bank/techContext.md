@@ -8,7 +8,7 @@
 - **Styling**: Tailwind CSS 4.x
 - **UI Components**: Custom React components
 - **State Management**: React hooks and context
-- **Internationalization**: next-intl for multi-language support
+- **Internationalization**: next-intl (currently English-only)
 - **Theming**: next-themes for dark/light mode
 
 ### Backend (Python 3.13)

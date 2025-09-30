@@ -1,55 +1,56 @@
 # Active Context: OpenProductWiki
 
 ## Current Focus
-**Initial Memory Bank Setup**: Establishing comprehensive documentation structure for the OpenProductWiki project based on analysis of the existing codebase.
+**Language Simplification & RAG System Issues**: Currently working on a branch `remove-another-languages` that simplifies internationalization to English-only, while addressing FAISS retriever errors affecting the RAG system.
 
-## Recent Analysis
-- **Project Structure**: Analyzed full-stack Next.js + FastAPI architecture
-- **Feature Set**: Identified core functionality including multi-provider AI integration, RAG-powered Q&A, and visual diagram generation
-- **Technical Stack**: Documented Next.js 15.3.1 frontend with FastAPI backend and multiple AI provider support
-- **Configuration System**: Found flexible JSON-based configuration for models, embeddings, and repository processing
+## Recent Changes (September 30, 2025)
+- **Language Cleanup**: Removed Korean, Portuguese (Brazil), Russian, Vietnamese, Traditional Chinese, and Simplified Chinese language support
+- **Internationalization**: Simplified to English-only configuration in `src/i18n.ts`
+- **Git Status**: Clean working tree on `remove-another-languages` branch
+- **System Issues**: FAISS retriever assertion errors detected in logs, affecting RAG functionality
 
 ## Current State Assessment
-The project appears to be a mature, feature-complete implementation with:
+The project is a mature, feature-complete implementation with:
 - ✅ **Multi-Provider AI Support**: Google Gemini, OpenAI, OpenRouter, Azure OpenAI, Ollama
 - ✅ **Private Repository Access**: Token-based authentication for GitHub, GitLab, BitBucket
-- ✅ **RAG Implementation**: Vector database with FAISS for repository Q&A
+- ⚠️ **RAG Implementation**: Vector database with FAISS experiencing retriever errors
 - ✅ **Visual Diagrams**: Mermaid.js integration for architecture visualization
-- ✅ **Internationalization**: Multi-language support with next-intl
+- ⚠️ **Internationalization**: Reduced to English-only (previously multi-language)
 - ✅ **Docker Deployment**: Complete containerization with docker-compose
 - ✅ **Streaming Interface**: Real-time progress updates via WebSocket
 
 ## Active Decisions Made
-1. **Memory Bank Structure**: Implemented complete memory bank following the standard pattern with core files and tasks directory
-2. **Documentation Approach**: Created comprehensive technical documentation covering architecture, patterns, and context
-3. **Project Classification**: Identified as a production-ready AI-powered documentation generation platform
+1. **Language Simplification**: Decided to reduce internationalization complexity by supporting English only
+2. **Memory Bank Maintenance**: Updated memory bank documentation to reflect current project state
+3. **Issue Identification**: Detected FAISS retriever problems requiring investigation
 
 ## Next Steps Priority
-1. **Identify Current Issues**: Review any existing bugs, performance bottlenecks, or missing features
-2. **Enhancement Opportunities**: Look for areas where the system could be improved or extended
-3. **User Experience**: Evaluate the current user interface and interaction patterns
-4. **Performance Analysis**: Check for optimization opportunities in the generation pipeline
-5. **Testing Coverage**: Assess current testing infrastructure and coverage
+1. **RAG System Fix**: Address FAISS retriever assertion errors affecting document retrieval
+2. **Language Branch Merge**: Complete the language simplification and merge to main
+3. **Performance Analysis**: Investigate memory and embedding dimension issues in FAISS
+4. **Testing Coverage**: Validate RAG functionality after fixes
+5. **Error Monitoring**: Improve error handling and logging for retriever failures
 
 ## Key Questions to Explore
-- Are there any specific pain points or issues in the current implementation?
-- What features or improvements are most needed?
-- How is the system performing with different repository sizes and types?
-- Are there any security or scalability concerns?
-- What user feedback patterns have emerged?
+- **RAG System**: What's causing the FAISS retriever assertion errors and how to fix them?
+- **Language Strategy**: Should the project maintain English-only or restore multilingual support?
+- **Error Recovery**: How can the system better handle and recover from RAG failures?
+- **Performance Impact**: Are the FAISS errors affecting overall system performance?
+- **User Impact**: How do these technical issues affect the user experience?
 
 ## Technology Context
 - **Frontend**: Modern React with TypeScript, Tailwind CSS, and streaming UI updates
 - **Backend**: FastAPI with WebSocket support for real-time communication
 - **AI Integration**: Sophisticated provider abstraction supporting 5 different AI services
-- **Data Pipeline**: Efficient repository processing with caching and vector storage
+- **Data Pipeline**: Repository processing with caching and vector storage (experiencing issues)
 - **Deployment**: Production-ready Docker setup with volume persistence
+- **Language Support**: Currently English-only (simplified from multi-language)
 
 ## Immediate Priorities
-1. Complete memory bank initialization
-2. Identify any outstanding tasks or issues
-3. Understand current development priorities
-4. Assess system health and performance
-5. Document any recent changes or ongoing work
+1. **RAG System Debug**: Investigate and fix FAISS retriever assertion failures
+2. **Branch Management**: Complete language simplification branch and merge
+3. **Error Handling**: Improve RAG error recovery and user feedback
+4. **System Health**: Ensure all core functionality works after changes
+5. **Documentation Update**: Update technical docs to reflect current architecture
 
 This represents a solid foundation for a production AI documentation platform with room for continued enhancement and optimization based on user needs and technical improvements.
