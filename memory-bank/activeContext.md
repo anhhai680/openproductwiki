@@ -4,22 +4,30 @@
 
 ## Current Focus 🎯
 
-**Language Configuration Cleanup (October 1, 2025)**
+**Multi-Language File Filtering Resolution (October 1, 2025)**
 
-Successfully resolved multi-language embedding issue by:
+Successfully resolved the multi-language embedding issue with comprehensive solution:
 
-1. **Configuration Update**: Modified `api/config/lang.json` to support only English
-   - Removed all languages except "en": "English"  
-   - Set default language to "en"
+### Root Cause Analysis ✅
+- **Issue**: Repository contained actual multi-language source files (README.zh.md, README.ja.md, etc.)
+- **Behavior**: System correctly embedded ALL files in repository, including non-English content
+- **Misconception**: Language config controls output language, NOT source file filtering
 
-2. **Cache Cleanup**: Created and executed `clear_language_cache.py` to remove:
-   - Multi-language FAISS embeddings cache
-   - Wiki cache files with language variants
-   - Repository cache with old language data
+### Solution Implementation ✅
+1. **Repository Filtering**: Added comprehensive multi-language file exclusion patterns to `api/config/repo.json`:
+   - `README.*.md` patterns for language-specific README files
+   - `*.zh.md`, `*.ja.md`, `*.fr.md`, etc. for all language variants
+   - Updated file filtering to exclude multi-language documentation
 
-3. **Docker Rebuild**: Rebuilt application to incorporate new language configuration
-   - Updated Docker image includes English-only language config
-   - All endpoints now return single-language configuration
+2. **Code Cleanup**: Updated `websocket_wiki.py` field description to reflect English-only support
+
+3. **Cache Clearing**: Removed existing embeddings for test repository with multi-language files
+
+### Technical Details ✅
+- **Language Config Purpose**: Controls AI output language and UI language only
+- **File Processing**: Now filters out non-English documentation files at source level
+- **Embedding Behavior**: Will only process English language files from repositories
+- **Cache Management**: Cleared existing multi-language embeddings for clean testing
 
 ## Recent Changes (October 1, 2025)
 

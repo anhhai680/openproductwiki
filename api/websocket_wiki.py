@@ -43,7 +43,7 @@ class ChatCompletionRequest(BaseModel):
     provider: str = Field("google", description="Model provider (google, openai, openrouter, ollama, azure)")
     model: Optional[str] = Field(None, description="Model name for the specified provider")
 
-    language: Optional[str] = Field("en", description="Language for content generation (e.g., 'en', 'ja', 'zh', 'es', 'kr', 'vi')")
+    language: Optional[str] = Field("en", description="Language for content generation (English only)")
     excluded_dirs: Optional[str] = Field(None, description="Comma-separated list of directories to exclude from processing")
     excluded_files: Optional[str] = Field(None, description="Comma-separated list of file patterns to exclude from processing")
     included_dirs: Optional[str] = Field(None, description="Comma-separated list of directories to include exclusively")
