@@ -48,6 +48,19 @@
 ### User Interface
 - **Responsive Design**: Works well on desktop and mobile devices
 - **Intuitive Navigation**: Clear repository input and configuration options
+
+### Hybrid RAG System ✅ (NEW)
+- **Dual Provider Architecture**: Local embeddings with external generation models
+- **5 API Endpoints**: Complete management interface for hybrid configurations
+  - `/embedding-models` - List available embedding models
+  - `/generation-models` - List available generation models  
+  - `/migration-presets` - Predefined configuration combinations
+  - `/embedding/current-config` - Get current embedding configuration
+  - `/embedding/update-config` - Update embedding configuration
+- **CLI Management Tool**: `embedding_manager.py` for command-line administration
+- **Validation Framework**: `test_hybrid_rag.py` for endpoint verification
+- **Dimension Safety**: Automatic validation and backup for embedding model changes
+- **Provider Flexibility**: Support for Ollama, OpenAI, HuggingFace embedding models
 - **Visual Feedback**: Progress indicators and streaming status updates
 - **Error Handling**: User-friendly error messages with actionable suggestions
 

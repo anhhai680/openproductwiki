@@ -144,6 +144,39 @@ class ModelConfig(BaseModel):
 class AuthorizationConfig(BaseModel):
     code: str = Field(..., description="Authorization code")
 
+# Hybrid RAG Models
+class EmbeddingModel(BaseModel):
+    id: str
+    name: str
+    provider: str
+    dimensions: int
+    cost: str
+    privacy: str
+    compatible: bool = True
+    description: str
+
+class LLMModel(BaseModel):
+    id: str
+    name: str
+    provider: str
+    costTier: Literal['free', 'low', 'medium', 'high']
+    capabilities: List[str]
+    description: str
+
+class EmbeddingPreset(BaseModel):
+    id: str
+    name: str
+    description: str
+    embedding: Dict[str, Any]
+    generation: Dict[str, Any]
+    benefits: List[str]
+    recommended: bool = False
+
+class HybridConfig(BaseModel):
+    embedding: EmbeddingModel
+    generation: LLMModel
+    enabled: bool = True
+
 from api.config import configs, WIKI_AUTH_MODE, WIKI_AUTH_CODE
 
 @app.get("/lang/config")
@@ -536,6 +569,301 @@ async def delete_wiki_cache(
     else:
         logger.warning(f"Wiki cache not found, cannot delete: {cache_path}")
         raise HTTPException(status_code=404, detail="Wiki cache not found")
+
+# --- Hybrid RAG Configuration Endpoints ---
+
+@app.get("/embedding-models", response_model=List[EmbeddingModel])
+async def get_embedding_models():
+    """
+    Get available embedding models with their characteristics.
+    
+    Returns:
+        List[EmbeddingModel]: List of available embedding models
+    """
+    try:
+        logger.info("Fetching embedding model configurations")
+        
+        # Define available embedding models with their characteristics
+        embedding_models = [
+            EmbeddingModel(
+                id="ollama_nomic-embed-text",
+                name="Nomic Embed Text",
+                provider="ollama",
+                dimensions=768,
+                cost="free",
+                privacy="local",
+                compatible=True,
+                description="High-quality embeddings running locally with Ollama"
+            ),
+            EmbeddingModel(
+                id="openai_text-embedding-3-small",
+                name="Text Embedding 3 Small",
+                provider="openai",
+                dimensions=768,
+                cost="low",
+                privacy="external",
+                compatible=True,
+                description="OpenAI's efficient embedding model (768D for compatibility)"
+            ),
+            EmbeddingModel(
+                id="openai_text-embedding-3-large",
+                name="Text Embedding 3 Large",
+                provider="openai",
+                dimensions=3072,
+                cost="medium",
+                privacy="external",
+                compatible=False,
+                description="OpenAI's highest quality embedding model (requires migration)"
+            ),
+            EmbeddingModel(
+                id="openai_text-embedding-ada-002",
+                name="Text Embedding Ada 002",
+                provider="openai",
+                dimensions=1536,
+                cost="low",
+                privacy="external",
+                compatible=False,
+                description="Legacy OpenAI embedding model (requires migration)"
+            ),
+            EmbeddingModel(
+                id="huggingface_all-mpnet-base-v2",
+                name="All-MiniLM-L6-v2",
+                provider="huggingface",
+                dimensions=768,
+                cost="free",
+                privacy="local",
+                compatible=True,
+                description="Popular sentence transformer model (768D compatible)"
+            )
+        ]
+        
+        return embedding_models
+        
+    except Exception as e:
+        logger.error(f"Error fetching embedding models: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch embedding models")
+
+@app.get("/generation-models", response_model=List[LLMModel])
+async def get_generation_models():
+    """
+    Get available generation models with their characteristics.
+    
+    Returns:
+        List[LLMModel]: List of available generation models
+    """
+    try:
+        logger.info("Fetching generation model configurations")
+        
+        # Build generation models from existing generator config
+        generation_models = []
+        
+        for provider_id, provider_config in configs["providers"].items():
+            for model_id in provider_config["models"].keys():
+                # Determine cost tier based on provider and model
+                cost_tier = "medium"  # default
+                if provider_id == "ollama":
+                    cost_tier = "free"
+                elif provider_id == "openai" and "gpt-4" in model_id:
+                    cost_tier = "high"
+                elif provider_id == "openai" and "gpt-3.5" in model_id:
+                    cost_tier = "low"
+                elif provider_id == "google":
+                    cost_tier = "low"
+                    
+                # Determine capabilities
+                capabilities = ["text-generation"]
+                if "gpt-4" in model_id or "gemini" in model_id:
+                    capabilities.extend(["reasoning", "analysis", "coding"])
+                if "turbo" in model_id or "flash" in model_id:
+                    capabilities.append("fast-response")
+                    
+                generation_models.append(LLMModel(
+                    id=f"{provider_id}_{model_id}",
+                    name=model_id.replace("-", " ").title(),
+                    provider=provider_id,
+                    costTier=cost_tier,
+                    capabilities=capabilities,
+                    description=f"{provider_id.title()} {model_id} model"
+                ))
+        
+        return generation_models
+        
+    except Exception as e:
+        logger.error(f"Error fetching generation models: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch generation models")
+
+@app.get("/migration-presets", response_model=List[EmbeddingPreset])
+async def get_migration_presets():
+    """
+    Get pre-configured migration presets for common hybrid RAG scenarios.
+    
+    Returns:
+        List[EmbeddingPreset]: List of migration presets
+    """
+    try:
+        logger.info("Fetching migration presets")
+        
+        presets = [
+            EmbeddingPreset(
+                id="hybrid_optimal",
+                name="Hybrid Optimal (Recommended)",
+                description="Best balance of privacy, cost, and performance using local embeddings with external generation",
+                embedding={
+                    "model": "ollama_nomic-embed-text",
+                    "provider": "ollama",
+                    "dimensions": 768,
+                    "cost": "free"
+                },
+                generation={
+                    "model": "openai_gpt-4o-mini",
+                    "provider": "openai",
+                    "cost": "low"
+                },
+                benefits=["100% Privacy for Documents", "Zero Embedding Costs", "High-Quality Answers", "No API Limits for Embeddings"],
+                recommended=True
+            ),
+            EmbeddingPreset(
+                id="openai_compatible",
+                name="OpenAI Compatible",
+                description="Use OpenAI for both embeddings and generation with 768D compatibility",
+                embedding={
+                    "model": "openai_text-embedding-3-small",
+                    "provider": "openai", 
+                    "dimensions": 768,
+                    "cost": "low"
+                },
+                generation={
+                    "model": "openai_gpt-4o-mini",
+                    "provider": "openai",
+                    "cost": "low"
+                },
+                benefits=["Single Provider", "Enterprise Support", "High Reliability", "Dimension Compatibility"],
+                recommended=False
+            ),
+            EmbeddingPreset(
+                id="google_hybrid",
+                name="Google Gemini Hybrid",
+                description="Local embeddings with Google Gemini for generation",
+                embedding={
+                    "model": "ollama_nomic-embed-text",
+                    "provider": "ollama",
+                    "dimensions": 768,
+                    "cost": "free"
+                },
+                generation={
+                    "model": "google_gemini-2.5-flash",
+                    "provider": "google",
+                    "cost": "low"
+                },
+                benefits=["Free Embeddings", "Fast Google Generation", "Cost Effective", "Privacy for Documents"],
+                recommended=False
+            ),
+            EmbeddingPreset(
+                id="fully_local",
+                name="Fully Local (Privacy First)",
+                description="Complete local processing using only Ollama models",
+                embedding={
+                    "model": "ollama_nomic-embed-text",
+                    "provider": "ollama",
+                    "dimensions": 768,
+                    "cost": "free"
+                },
+                generation={
+                    "model": "ollama_llama3.1",
+                    "provider": "ollama",
+                    "cost": "free"
+                },
+                benefits=["100% Local", "Complete Privacy", "Zero API Costs", "No Internet Required"],
+                recommended=False
+            )
+        ]
+        
+        return presets
+        
+    except Exception as e:
+        logger.error(f"Error fetching migration presets: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch migration presets")
+
+@app.get("/embedding/current-config")
+async def get_current_embedding_config():
+    """
+    Get the current embedding configuration.
+    
+    Returns:
+        Dict: Current embedding configuration
+    """
+    try:
+        logger.info("Fetching current embedding configuration")
+        
+        # Read current embedder config
+        config_path = os.path.join(os.path.dirname(__file__), "config", "embedder.json")
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            
+        # Extract current embedding model info
+        embedder_config = config.get("embedder", {})
+        model_name = embedder_config.get("model_kwargs", {}).get("model", "unknown")
+        client_class = embedder_config.get("client_class", "unknown")
+        
+        # Determine provider from client class
+        provider = "unknown"
+        if "Ollama" in client_class:
+            provider = "ollama"
+        elif "OpenAI" in client_class:
+            provider = "openai"
+        elif "HuggingFace" in client_class:
+            provider = "huggingface"
+            
+        return {
+            "model": model_name,
+            "provider": provider,
+            "client_class": client_class,
+            "dimensions": 768,  # Default based on nomic-embed-text
+            "config": config
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching current embedding config: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch current embedding configuration")
+
+@app.post("/embedding/update-config")
+async def update_embedding_config(config_data: Dict[str, Any]):
+    """
+    Update the embedding configuration.
+    
+    Args:
+        config_data: New embedding configuration
+        
+    Returns:
+        Dict: Success status and updated configuration
+    """
+    try:
+        logger.info(f"Updating embedding configuration: {config_data}")
+        
+        # Read current config
+        config_path = os.path.join(os.path.dirname(__file__), "config", "embedder.json")
+        with open(config_path, 'r') as f:
+            current_config = json.load(f)
+            
+        # Update the configuration
+        if "embedder" in config_data:
+            current_config["embedder"].update(config_data["embedder"])
+            
+        # Write updated config
+        with open(config_path, 'w') as f:
+            json.dump(current_config, f, indent=2)
+            
+        logger.info("Embedding configuration updated successfully")
+        
+        return {
+            "success": True,
+            "message": "Embedding configuration updated successfully",
+            "config": current_config
+        }
+        
+    except Exception as e:
+        logger.error(f"Error updating embedding config: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to update embedding configuration")
 
 @app.get("/health")
 async def health_check():
